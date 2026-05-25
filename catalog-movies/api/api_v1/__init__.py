@@ -5,7 +5,7 @@ from fastapi import (
 
 # первая версия API
 router = APIRouter(
-    prefix="/v1",
+    prefix="/api_v1",
 )
 
 

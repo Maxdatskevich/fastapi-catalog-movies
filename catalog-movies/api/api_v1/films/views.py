@@ -1,3 +1,5 @@
+import random
+
 from starlette.requests import Request
 
 from .crud import MOVIES
@@ -46,19 +48,18 @@ def get_movie_details(request: Request, movie_id: int) -> Movie:
 
 @router.post("/add_new_film", response_model=Movie, status_code=status.HTTP_201_CREATED)
 def add_new_film(
-    id: int,
-    title_f: Annotated[str, Len(min_length=2, max_length=50), Form()],
-    description_f: Annotated[str, Len(min_length=5, max_length=300), Form()],
+    title_f: Annotated[str, Len(min_length=2, max_length=50)],  # Form()],
+    description_f: Annotated[str, Len(min_length=5, max_length=300)],  # Form()],
+    year_f: int = None,
+    director_f: str = None,
+    budget_f: int = None,
 ) -> Movie:
-    return Movie(id=id, title_f=title_f, description_f=description_f)
-
-
-"""
-id: int  # уникальный номер
-    title_f: str  # название
-    description_f: str  # описание
-    year_f: int | None  # год выпуска
-    director_f: str | None  # режиссер
-    budget_f: int | None  # бюджет
-
-"""
+    new_id = random.randint(5, 1000)
+    return Movie(
+        id=new_id,
+        title_f=title_f,
+        description_f=description_f,
+        year_f=year_f,
+        director_f=director_f,
+        budget_f=budget_f,
+    )

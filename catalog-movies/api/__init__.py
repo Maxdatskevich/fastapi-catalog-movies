@@ -11,7 +11,7 @@ from .api_v1.films.views import router as films_router
 router = APIRouter(
     prefix="/api",
 )
-router.include_router(api_v1_router)
+# router.include_router(api_v1_router)
 router.include_router(films_router)
 
 

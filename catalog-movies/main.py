@@ -3,7 +3,7 @@ from fastapi import (
 )
 from starlette.requests import Request
 
-from api.api_v1.films.views import router as api_v1_router
+from api.api_v1 import router as api_v1_router
 from api import router as api_router
 
 app = FastAPI(title="Catalog movies")
