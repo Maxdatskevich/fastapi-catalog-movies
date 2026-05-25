@@ -14,6 +14,16 @@ router = APIRouter(
 )
 
 
+@router.get("/")
+def get_films(
+    request: Request,
+) -> dict:
+    return {
+        "message": f"Hello! this is API for films",
+        "docs": "main films",
+    }
+
+
 @router.get("/all_movies")
 def get_all_movies(
     request: Request,
