@@ -4,7 +4,10 @@ from starlette.requests import Request
 
 from .crud import MOVIES
 from .dependencies import find_movie
-from schemas.movie import Movie
+from schemas.movie import (
+    Movie,
+    MovieAdd,
+)
 from fastapi import (
     APIRouter,
     status,
@@ -47,19 +50,24 @@ def get_movie_details(request: Request, movie_id: int) -> Movie:
 
 
 @router.post("/add_new_film", response_model=Movie, status_code=status.HTTP_201_CREATED)
+# def add_new_film(
+#     year_f: int = None,
+#     director_f: str = None,
+#     budget_f: int = None,
+# ) -> Movie:
+#     new_id = random.randint(5, 1000)
+#     return Movie(
+#         id=new_id,
+#         title_f=title_f,
+#         description_f=description_f,
+#         year_f=year_f,
+#         director_f=director_f,
+#         budget_f=budget_f,
+#     )
+@router.post("/add_new_film", response_model=Movie, status_code=status.HTTP_201_CREATED)
 def add_new_film(
-    title_f: Annotated[str, Len(min_length=2, max_length=50)],  # Form()],
-    description_f: Annotated[str, Len(min_length=5, max_length=300)],  # Form()],
-    year_f: int = None,
-    director_f: str = None,
-    budget_f: int = None,
+    new_film: MovieAdd,
 ) -> Movie:
-    new_id = random.randint(5, 1000)
-    return Movie(
-        id=new_id,
-        title_f=title_f,
-        description_f=description_f,
-        year_f=year_f,
-        director_f=director_f,
-        budget_f=budget_f,
-    )
+    res = Movie(**new_film.model_dump())
+    print(res)
+    return Movie(**new_film.model_dump())
