@@ -2,14 +2,14 @@
 from fastapi import HTTPException
 from starlette import status
 
-from .crud import MOVIES
+from .crud import (
+    storage_movie,
+)
 from schemas.movie import Movie
 
 
 def find_movie(movie_id: int) -> Movie:
-    movie_details: Movie | None = next(
-        (movie for movie in MOVIES if movie.id == movie_id), None
-    )
+    movie_details: Movie | None = storage_movie.get_by_movie_id(movie_id)
     if movie_details:
         return movie_details
 
