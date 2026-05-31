@@ -1,3 +1,5 @@
+import random
+
 from pydantic import BaseModel
 
 from schemas.movie import Movie, MovieAdd
@@ -45,25 +47,30 @@ MOVIES = [
 
 
 class MoviesStorage(BaseModel):
-    movie: dict[str, Movie] = {}
+    movies: dict[int, Movie] = {}
 
     def get(self) -> list[Movie]:
-        return list(self.movie.values())  # список из значений словаря
+        return list(self.movies.values())  # список из значений словаря
 
     def get_by_movie_id(self, movie_id: int) -> Movie | None:
-        return self.movie.get(movie_id)  # ключи из словаря
+        return self.movies.get(movie_id)  # ключи из словаря
 
     def create(self, movie_data_in: MovieAdd) -> Movie:
-        movie = Movie(
-            **movie_data_in.model_dump(),  # превращение Pydantic-модели в словарь
+        if movie_data_in.id is None:
+            new_id = random.randint(1, 1000)
+        else:
+            new_id = movie_data_in.id
+        new_movie = Movie(
+            id=new_id,
+            **movie_data_in.model_dump(
+                exclude={"id"}
+            ),  # превращение Pydantic-модели в словарь
         )
-        self.movie[movie.id] = movie  # добавляем запись в словарь
-        return movie
+        self.movies[new_movie.id] = new_movie
+        return new_movie
 
     def delete_by_id(self, movie_id: int) -> None:
-        deleted = self.movie.pop(movie_id, None)
-        print(deleted)
-        return {"ok": True}
+        deleted = self.movies.pop(movie_id, None)
 
     def delete(self, movie: Movie) -> None:
         self.delete_by_id(movie.id)

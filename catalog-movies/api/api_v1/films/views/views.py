@@ -33,12 +33,12 @@ def get_films(
 def get_all_movies(
     request: Request,
 ) -> list:
-    return storage_movie
+    return storage_movie.get()
 
 
 @router.post("/add_new_film", response_model=Movie, status_code=status.HTTP_201_CREATED)
 def add_new_film(
     new_film: MovieAdd,
 ) -> Movie:
-
-    return Movie(**new_film.model_dump())
+    # return Movie(**new_film.model_dump())
+    return storage_movie.create(new_film)

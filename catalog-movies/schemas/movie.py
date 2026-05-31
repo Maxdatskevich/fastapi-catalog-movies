@@ -7,7 +7,7 @@ from annotated_types import Len
 # классы, которые описывают структуру данных
 # Pydantic для автоматической генерации документации Swagger и OpenAPI.
 class MovieBase(BaseModel):
-    id: int = Field(default_factory=lambda: random.randint(1, 1000))
+    id: int | None = None
     title_f: str = Field(..., min_length=3)
     description_f: str = Field(..., min_length=3)
     year_f: int | None = None  # год выпуска
