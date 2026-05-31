@@ -51,15 +51,22 @@ class MoviesStorage(BaseModel):
         return list(self.movie.values())  # список из значений словаря
 
     def get_by_movie_id(self, movie_id: int) -> Movie | None:
-        # print(f"get_by_movie_id: {self.movie.get(1)}")
         return self.movie.get(movie_id)  # ключи из словаря
 
     def create(self, movie_data_in: MovieAdd) -> Movie:
         movie = Movie(
             **movie_data_in.model_dump(),  # превращение Pydantic-модели в словарь
         )
-        self.movie[movie.id] = movie
+        self.movie[movie.id] = movie  # добавляем запись в словарь
         return movie
+
+    def delete_by_id(self, movie_id: int) -> None:
+        deleted = self.movie.pop(movie_id, None)
+        print(deleted)
+        return {"ok": True}
+
+    def delete(self, movie: Movie) -> None:
+        self.delete_by_id(movie.id)
 
 
 storage_movie = MoviesStorage()

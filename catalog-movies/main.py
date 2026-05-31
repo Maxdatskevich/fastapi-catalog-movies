@@ -22,6 +22,6 @@ def read_root(
         query="",
     )
     return {
-        "message": f"Hello {name}",
+        "message": f"Hello friend 😎",
         "docs": str(docs_url),
     }

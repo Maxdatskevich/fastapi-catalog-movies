@@ -1,5 +1,6 @@
 import random
-
+from typing import Annotated
+from fastapi.params import Depends
 from starlette.requests import Request
 
 from .crud import storage_movie
@@ -40,16 +41,36 @@ def get_all_movies(
     return storage_movie
 
 
-@router.get("/{movie_id}")
-def get_movie_details(request: Request, movie_id: int) -> Movie:
-    print("movie_id = ", movie_id)
-    res = find_movie(movie_id)
-    return res
+# response_model=Movie — указывает, что ответ должен быть сериализован по модели Movie
+@router.get("/{movie_id}", response_model=Movie)
+def get_movie_details(
+    movie: Annotated[Movie, Depends(find_movie)],
+) -> Movie:
+    return movie
 
 
 @router.post("/add_new_film", response_model=Movie, status_code=status.HTTP_201_CREATED)
 def add_new_film(
     new_film: MovieAdd,
 ) -> Movie:
-    res = Movie(**new_film.model_dump())
+
     return Movie(**new_film.model_dump())
+
+
+@router.delete(
+    "/delete/{movie_id}/",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Movie with movie_id not found",
+            "content": {
+                "aplication/json": {"example": {"detail": "Movie 'movie_id' not found"}}
+            },
+        },
+    },
+)
+def delete_movie_by_id(
+    movie: Annotated[Movie, Depends(find_movie)],
+) -> None:
+    storage_movie.delete(movie)
+    print('{"ok": True}')
