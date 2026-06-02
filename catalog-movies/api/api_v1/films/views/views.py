@@ -2,8 +2,8 @@ from starlette.requests import Request
 
 from api.api_v1.films.crud import storage_movie
 from schemas.movie import (
-    Movie,
-    MovieAdd,
+    MovieRead,
+    MovieCreate,
 )
 from fastapi import (
     APIRouter,
@@ -19,14 +19,14 @@ router = APIRouter(
 )
 
 
-@router.get("/")
-def get_films(
-    request: Request,
-) -> dict:
-    return {
-        "message": f"Hello! this is API for films",
-        "docs": "main films",
-    }
+# @router.get("/")
+# def get_films(
+#     request: Request,
+# ) -> dict:
+#     return {
+#         "message": f"Hello! this is API for films",
+#         "docs": "main films",
+#     }
 
 
 @router.get("/all_movies")
@@ -36,9 +36,11 @@ def get_all_movies(
     return storage_movie.get()
 
 
-@router.post("/add_new_film", response_model=Movie, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/add_new_film", response_model=MovieRead, status_code=status.HTTP_201_CREATED
+)
 def add_new_film(
-    new_film: MovieAdd,
-) -> Movie:
+    new_film: MovieCreate,
+) -> MovieRead:
     # return Movie(**new_film.model_dump())
     return storage_movie.create(new_film)

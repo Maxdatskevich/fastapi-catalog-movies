@@ -6,7 +6,10 @@ from starlette.requests import Request
 
 from api.api_v1.films.crud import storage_movie
 from api.api_v1.films.dependencies import find_movie
-from schemas.movie import Movie
+from schemas.movie import (
+    MovieRead,
+    MovieUpdateData,
+)
 from fastapi import APIRouter
 
 router = APIRouter(
@@ -21,12 +24,17 @@ router = APIRouter(
     },
 )
 
+MovieData = Annotated[
+    MovieRead,
+    Depends(find_movie),
+]
+
 
 # response_model=Movie — указывает, что ответ должен быть сериализован по модели Movie
-@router.get("/", response_model=Movie)
+@router.get("/", response_model=MovieRead)
 def get_movie_details(
-    movie: Annotated[Movie, Depends(find_movie)],
-) -> Movie:
+    movie: MovieData,
+) -> MovieRead:
     return movie
 
 
@@ -35,7 +43,18 @@ def get_movie_details(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 def delete_movie_by_id(
-    movie: Annotated[Movie, Depends(find_movie)],
+    movie: MovieData,
 ) -> None:
     storage_movie.delete(movie)
     print('{"ok": True}')
+
+
+@router.put("/", response_model=MovieRead)
+def update_movie_description(
+    movie: MovieData,
+    movie_data_in: MovieUpdateData,
+):
+    return storage_movie.update_data_movie(
+        movie=movie,
+        movie_descr_in=movie_data_in,
+    )

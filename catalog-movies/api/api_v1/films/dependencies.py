@@ -5,11 +5,11 @@ from starlette import status
 from .crud import (
     storage_movie,
 )
-from schemas.movie import Movie
+from schemas.movie import MovieRead
 
 
-def find_movie(movie_id: int) -> Movie:
-    movie_details: Movie | None = storage_movie.get_by_movie_id(movie_id)
+def find_movie(movie_id: int) -> MovieRead:
+    movie_details: MovieRead | None = storage_movie.get_by_movie_id(movie_id)
     if movie_details:
         return movie_details
 
