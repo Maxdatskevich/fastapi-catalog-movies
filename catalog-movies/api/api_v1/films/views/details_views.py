@@ -9,6 +9,7 @@ from api.api_v1.films.dependencies import find_movie
 from schemas.movie import (
     MovieRead,
     MovieUpdateData,
+    MoviePartitionUpdate,
 )
 from fastapi import APIRouter
 
@@ -24,7 +25,7 @@ router = APIRouter(
     },
 )
 
-MovieData = Annotated[
+MovieCheck = Annotated[
     MovieRead,
     Depends(find_movie),
 ]
@@ -33,7 +34,7 @@ MovieData = Annotated[
 # response_model=Movie — указывает, что ответ должен быть сериализован по модели Movie
 @router.get("/", response_model=MovieRead)
 def get_movie_details(
-    movie: MovieData,
+    movie: MovieCheck,
 ) -> MovieRead:
     return movie
 
@@ -43,7 +44,7 @@ def get_movie_details(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 def delete_movie_by_id(
-    movie: MovieData,
+    movie: MovieCheck,
 ) -> None:
     storage_movie.delete(movie)
     print('{"ok": True}')
@@ -51,10 +52,21 @@ def delete_movie_by_id(
 
 @router.put("/", response_model=MovieRead)
 def update_movie_description(
-    movie: MovieData,
+    movie_id: MovieCheck,
     movie_data_in: MovieUpdateData,
 ):
     return storage_movie.update_data_movie(
-        movie=movie,
+        movie=movie_id,
         movie_descr_in=movie_data_in,
+    )
+
+
+@router.patch("/", response_model=MovieRead)
+def update_movie_partitional(
+    movie: MovieCheck,
+    movie_data_in: MoviePartitionUpdate,
+) -> MovieRead:
+    return storage_movie.update_partial(
+        movie=movie,
+        movie_in=movie_data_in,
     )

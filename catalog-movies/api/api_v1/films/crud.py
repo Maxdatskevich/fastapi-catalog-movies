@@ -6,46 +6,47 @@ from schemas.movie import (
     MovieRead,
     MovieCreate,
     MovieUpdateData,
+    MoviePartitionUpdate,
 )
 
 # МОДУЛЬ С ФУНКЦИЯМИ ДЛЯ РАБОТЫ С БД
 
 MOVIES = [
-    MovieRead(
-        id=1,
+    MovieCreate(
+        # id=1,
+        title_f="Интерстеллар",
+        description_f="Фантастический эпос про задыхающуюся Землю, космические полеты и парадоксы времени. «Оскар» за спецэффекты",
         year_f=2014,
         director_f="Кристофер Нолан",
         budget_f=165000000,
-        title_f="Интерстеллар",
-        description_f="Фантастический эпос про задыхающуюся Землю, космические полеты и парадоксы времени. «Оскар» за спецэффекты",
     ),
-    MovieRead(
+    MovieCreate(
+        title_f="Побег из Шоушенка",
+        description_f="Несправедливо осужденный банкир готовит побег из тюрьмы. Тим Роббинс в выдающейся экранизации Стивена Кинга",
         year_f=1994,
         director_f="Фрэнк Дарабонт",
         budget_f=25000000,
-        title_f="Побег из Шоушенка",
-        description_f="Несправедливо осужденный банкир готовит побег из тюрьмы. Тим Роббинс в выдающейся экранизации Стивена Кинга",
     ),
-    MovieRead(
+    MovieCreate(
+        title_f="Джентльмены",
+        description_f="Гангстеры всех мастей делят нелегальный бизнес. Закрученная экшен-комедия Гая Ричи с Мэттью Макконахи",
         year_f=2019,
         director_f="Гай Ричи",
         budget_f=22000000,
-        title_f="Джентльмены",
-        description_f="Гангстеры всех мастей делят нелегальный бизнес. Закрученная экшен-комедия Гая Ричи с Мэттью Макконахи",
     ),
-    MovieRead(
+    MovieCreate(
+        title_f="Властелин колец: Возвращение короля",
+        description_f="Арагорн штурмует Мордор, а Фродо устал бороться с чарами кольца. Эффектный финал саги, собравший 11 «Оскаров»",
         year_f=2003,
         director_f="Питер Джексон",
         budget_f=94000000,
-        title_f="Властелин колец: Возвращение короля",
-        description_f="Арагорн штурмует Мордор, а Фродо устал бороться с чарами кольца. Эффектный финал саги, собравший 11 «Оскаров»",
     ),
-    MovieRead(
+    MovieCreate(
+        title_f="Зеленая миля",
+        description_f="В тюрьме для смертников появляется заключенный с божественным даром. Мистическая драма по роману Стивена Кинга",
         year_f=1999,
         director_f="Фрэнк Дарабонт",
         budget_f=60000000,
-        title_f="Зеленая миля",
-        description_f="В тюрьме для смертников появляется заключенный с божественным даром. Мистическая драма по роману Стивена Кинга",
     ),
 ]
 
@@ -60,15 +61,13 @@ class MoviesStorage(BaseModel):
         return self.movies.get(movie_id)  # ключ из словаря
 
     def create(self, movie_data_in: MovieCreate) -> MovieRead:
-        if movie_data_in.id is None:
-            new_id = random.randint(1, 1000)
-        else:
-            new_id = movie_data_in.id
+        # if movie_data_in.id is None:
+        new_id = random.randint(1, 1000)
+        # else:
+        #     new_id = movie_data_in.id
         new_movie = MovieRead(
             id=new_id,
-            **movie_data_in.model_dump(
-                exclude={"id"},
-            ),  # превращение Pydantic-модели в словарь
+            **movie_data_in.model_dump(),  # превращение Pydantic-модели в словарь
         )
         self.movies[new_movie.id] = new_movie
         return new_movie
@@ -85,6 +84,13 @@ class MoviesStorage(BaseModel):
         movie_descr_in: MovieUpdateData,
     ) -> MovieRead:
         for field_name, value in movie_descr_in:
+            setattr(movie, field_name, value)
+        return movie
+
+    def update_partial(
+        self, movie: MovieRead, movie_in: MoviePartitionUpdate
+    ) -> MovieRead:
+        for field_name, value in movie_in.model_dump(exclude_unset=True).items():
             setattr(movie, field_name, value)
         return movie
 
