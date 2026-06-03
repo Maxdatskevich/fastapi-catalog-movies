@@ -40,8 +40,8 @@ class MoviePartitionUpdate(MovieCreate):
     Модель для частичного обновления данных о фильме
     """
 
-    title_f: DescriptionTitle
-    description_f: DescriptionString
+    title_f: DescriptionTitle | None = None
+    description_f: DescriptionString | None = None
     year_f: int | None = None  # год выпуска
     director_f: str | None = None  # режиссер
     budget_f: int | None = None  # бюджет
