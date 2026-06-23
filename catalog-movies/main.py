@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import (
     FastAPI,
 )
@@ -5,6 +7,13 @@ from starlette.requests import Request
 
 from api.api_v1 import router as api_v1_router
 from api import router as api_router
+from core import config
+
+logging.basicConfig(
+    level=config.LOG_LEVEl,
+    format=config.LOG_FORMAT,
+)
+
 
 app = FastAPI(title="Catalog movies_dict")
 

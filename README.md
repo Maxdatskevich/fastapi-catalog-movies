@@ -1,14 +1,14 @@
-FastApi Catalog Movies
+FastApi Catalog movies_dict
 
 ## Develop
 
 ### Setup:
 
-Right click 'catalog-movies' -> Mark directory as -> Sources Root
+Right click 'catalog-movies_dict' -> Mark directory as -> Sources Root
 
 Go to work dir:
 ```shell
-cd catalog-movies
+cd catalog-movies_dict
 ```
 
 Run dev server:

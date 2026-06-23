@@ -1,6 +1,7 @@
+import logging
 import random
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from schemas.movie import (
     SMovie,
@@ -9,6 +10,9 @@ from schemas.movie import (
     SMoviePartitionUpdate,
     SMovieRead,
 )
+from core.config import MOVIES_STORAGE_FILEPATH
+
+log_crud = logging.getLogger(__name__)
 
 # МОДУЛЬ С ФУНКЦИЯМИ ДЛЯ РАБОТЫ С БД
 
@@ -58,6 +62,19 @@ class MoviesDictStorage(BaseModel):
     def get(self) -> list[SMovie]:
         return list(self.movies_dict.values())  # список из значений словаря
 
+    def save_state(self) -> None:
+        MOVIES_STORAGE_FILEPATH.write_text(
+            self.model_dump_json(indent=2, ensure_ascii=False)
+        )
+        log_crud.info("Saved new movie to movies.json file.")
+
+    @classmethod
+    def from_state(cls) -> "MoviesDictStorage":
+        if not MOVIES_STORAGE_FILEPATH.exists():
+            log_crud.info("Movies.json file doesn't exists.")
+            return MoviesDictStorage()
+        return cls.model_validate_json(MOVIES_STORAGE_FILEPATH.read_text())
+
     def get_by_movie_id(self, movie_id: int) -> SMovie | None:
         return self.movies_dict.get(movie_id)  # ключ из словаря
 
@@ -71,9 +88,11 @@ class MoviesDictStorage(BaseModel):
         )
 
         self.movies_dict[new_movie.id] = new_movie
+        self.save_state()
         return new_movie
 
     def delete_by_id(self, movie_id: int) -> None:
+        self.save_state()
         self.movies_dict.pop(movie_id, None)
 
     def delete(self, movie: SMovie) -> None:
@@ -86,6 +105,7 @@ class MoviesDictStorage(BaseModel):
     ) -> SMovie:
         for field_name, value in movie_descr_in:
             setattr(movie, field_name, value)
+        self.save_state()
         return movie
 
     def update_partial(
@@ -111,8 +131,14 @@ SMovie(
 SMovie_descr_in = SMovieUpdate(title_f="new", description_f="new")
 """
 
+# new_data = MoviesDictStorage()
+# for i in movies_dict:
+#     new_data.create(i)
 
-storage_movie = MoviesDictStorage()
-for i in movies_dict:
-    # print(i)
-    storage_movie.create(i)
+try:
+    storage_movie = MoviesDictStorage.from_state()
+    log_crud.warning("Recovered data from movies.json file.")
+except ValidationError:
+    storage_movie = MoviesDictStorage()
+    storage_movie.save_state()
+    log_crud.warning("Rewriting movies.json due to validation error.")

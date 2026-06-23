@@ -91,7 +91,7 @@ wheels = [
 ]
 
 [[package]]
-name = "fast-api-catalog-movies"
+name = "fast-api-catalog-movies_dict"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
