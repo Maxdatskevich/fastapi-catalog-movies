@@ -59,6 +59,19 @@ movies_dict = [
 class MoviesDictStorage(BaseModel):
     movies_dict: dict[int, SMovie] = {}
 
+    def init_storage_movie_from_state(self) -> None:
+        try:
+            data_movie = MoviesDictStorage.from_state()
+            # Извлеченные данные из файла movies.json.
+            log_crud.warning("Recovered data from movies.json file.")
+        except ValidationError:
+            self.save_state()
+            log_crud.warning("Rewriting movies.json due to validation error.")
+            return
+        self.movies_dict.update(data_movie.movies_dict)
+        # Данные из файла хранилища
+        log_crud.warning("Recovered data from storage file.")
+
     def get(self) -> list[SMovie]:
         return list(self.movies_dict.values())  # список из значений словаря
 
@@ -135,10 +148,4 @@ SMovie_descr_in = SMovieUpdate(title_f="new", description_f="new")
 # for i in movies_dict:
 #     new_data.create(i)
 
-try:
-    storage_movie = MoviesDictStorage.from_state()
-    log_crud.warning("Recovered data from movies.json file.")
-except ValidationError:
-    storage_movie = MoviesDictStorage()
-    storage_movie.save_state()
-    log_crud.warning("Rewriting movies.json due to validation error.")
+storage_movie = MoviesDictStorage()

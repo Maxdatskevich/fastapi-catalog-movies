@@ -7,6 +7,7 @@ from starlette.requests import Request
 
 from api.api_v1 import router as api_v1_router
 from api import router as api_router
+from app_life_span import lifespan
 from core import config
 
 logging.basicConfig(
@@ -15,7 +16,10 @@ logging.basicConfig(
 )
 
 
-app = FastAPI(title="Catalog movies_dict")
+app = FastAPI(
+    title="Catalog movies_dict",
+    lifespan=lifespan,
+)
 
 app.include_router(api_v1_router)
 app.include_router(api_router)
