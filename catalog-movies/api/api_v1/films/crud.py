@@ -15,7 +15,6 @@ from core.config import MOVIES_STORAGE_FILEPATH
 log_crud = logging.getLogger(__name__)
 
 # МОДУЛЬ С ФУНКЦИЯМИ ДЛЯ РАБОТЫ С БД
-
 movies_dict = [
     SMovieCreate(
         id=1,
@@ -62,6 +61,7 @@ class MoviesDictStorage(BaseModel):
     def init_storage_movie_from_state(self) -> None:
         try:
             data_movie = MoviesDictStorage.from_state()
+            print("data_movie = ", data_movie)
             # Извлеченные данные из файла movies.json.
             log_crud.warning("Recovered data from movies.json file.")
         except ValidationError:
@@ -85,6 +85,7 @@ class MoviesDictStorage(BaseModel):
     def from_state(cls) -> "MoviesDictStorage":
         if not MOVIES_STORAGE_FILEPATH.exists():
             log_crud.info("Movies.json file doesn't exists.")
+
             return MoviesDictStorage()
         return cls.model_validate_json(MOVIES_STORAGE_FILEPATH.read_text())
 
@@ -99,13 +100,11 @@ class MoviesDictStorage(BaseModel):
         new_movie = SMovie(
             **movie_data_in.model_dump(),  # превращение Pydantic-модели в словарь
         )
-
         self.movies_dict[new_movie.id] = new_movie
-        self.save_state()
         return new_movie
 
     def delete_by_id(self, movie_id: int) -> None:
-        self.save_state()
+        # self.save_state()
         self.movies_dict.pop(movie_id, None)
 
     def delete(self, movie: SMovie) -> None:
@@ -118,14 +117,14 @@ class MoviesDictStorage(BaseModel):
     ) -> SMovie:
         for field_name, value in movie_descr_in:
             setattr(movie, field_name, value)
-        self.save_state()
+        # self.save_state()
         return movie
 
     def update_partial(
         self, movie: SMovie, movie_in: SMoviePartitionUpdate
     ) -> SMovieRead:
-        print(movie_in.model_dump(exclude_unset=True).items())
-        print(movie_in.model_dump(exclude_unset=True))
+        # print(movie_in.model_dump(exclude_unset=True).items())
+        # print(movie_in.model_dump(exclude_unset=True))
         for field_name, value in movie_in.model_dump(exclude_unset=True).items():
             setattr(movie, field_name, value)
         return movie

@@ -9,6 +9,7 @@ from schemas.movie import (
 from fastapi import (
     APIRouter,
     status,
+    BackgroundTasks,
 )
 
 # endpoints (контроллеры).
@@ -43,6 +44,8 @@ def get_all_movies_dict() -> list:
 )
 def add_new_film(
     new_film: SMovieCreate,
+    background_tasks: BackgroundTasks,
 ) -> SMovie:
-    # return SMovie(**new_film.model_dump())
-    return storage_movie.create(new_film)
+    new_movie = storage_movie.create(new_film)
+    background_tasks.add_task(storage_movie.save_state)
+    return new_movie
