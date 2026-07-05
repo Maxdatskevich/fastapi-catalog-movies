@@ -1,6 +1,7 @@
 from starlette.requests import Request
 
 from api.api_v1.films.crud import storage_movie
+from api.api_v1.films.dependencies import save_storage_movies
 from schemas.movie import (
     SMovie,
     SMovieCreate,
@@ -10,6 +11,7 @@ from fastapi import (
     APIRouter,
     status,
     BackgroundTasks,
+    Depends,
 )
 
 # endpoints (контроллеры).
@@ -18,6 +20,7 @@ from fastapi import (
 router = APIRouter(
     prefix="/movies_dict",
     tags=["movies_dict"],
+    dependencies=[Depends(save_storage_movies)]
 )
 
 
@@ -44,8 +47,6 @@ def get_all_movies_dict() -> list:
 )
 def add_new_film(
     new_film: SMovieCreate,
-    background_tasks: BackgroundTasks,
 ) -> SMovie:
     new_movie = storage_movie.create(new_film)
-    background_tasks.add_task(storage_movie.save_state)
     return new_movie
